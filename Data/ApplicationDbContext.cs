@@ -16,5 +16,6 @@ namespace EduPortal.Data
         public DbSet<EduPortal.Models.Category> Category { get; set; }
         public DbSet<EduPortal.Models.Course> Course { get; set; }
         public DbSet<EduPortal.Models.Material> Material { get; set; }
+        public DbSet<EduPortal.Models.CourseDetails> CourseDetails { get; set; }
     }
 }

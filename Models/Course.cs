@@ -22,6 +22,7 @@ namespace EduPortal.Models
         [ForeignKey("CategoryId")]
         [Display(Name = "Category")]
         public virtual Category Category { get; set; }
+        public CourseDetails CourseDetails { get; set; }
 
         public virtual ICollection<Material> Materials { get; set; }
 
