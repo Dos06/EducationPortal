@@ -20,10 +20,44 @@ namespace EduPortal.Controllers
         }
 
         // GET: Courses
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string sortOrder, string currentFilter, string searchString, int? pageNumber)
         {
-            var applicationDbContext = _context.Course.Include(c => c.Category);
-            return View(await applicationDbContext.ToListAsync());
+            ViewData["CurrentSort"] = sortOrder;
+            ViewData["NameSortParm"] = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
+            ViewData["CurrentFilter"] = searchString;
+
+            if (searchString != null)
+            {
+                pageNumber = 1;
+            }
+            else
+            {
+                searchString = currentFilter;
+            }
+
+            ViewData["CurrentFilter"] = searchString;
+
+            var courses = from c in _context.Course select c;
+
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                courses = courses.Where(c => c.Name.Contains(searchString));
+            }
+
+            if (sortOrder == "name_desc")
+            {
+                courses = courses.OrderByDescending(c => c.Name);
+            }
+            else
+            {
+                courses = courses.OrderBy(c => c.Name);
+            }
+
+            int pageSize = 3;
+            return View(await PaginatedList<Course>.CreateAsync(courses.AsNoTracking(), pageNumber ?? 1, pageSize));
+
+            //var applicationDbContext = _context.Course.Include(c => c.Category);
+            //return View(await applicationDbContext.ToListAsync());
         }
 
         // GET: Courses/Details/5

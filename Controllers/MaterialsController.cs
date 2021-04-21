@@ -20,8 +20,42 @@ namespace EduPortal.Controllers
         }
 
         // GET: Materials
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string sortOrder, string currentFilter, string searchString, int? pageNumber)
         {
+            ViewData["CurrentSort"] = sortOrder;
+            ViewData["NameSortParm"] = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
+            ViewData["CurrentFilter"] = searchString;
+
+            if (searchString != null)
+            {
+                pageNumber = 1;
+            }
+            else
+            {
+                searchString = currentFilter;
+            }
+
+            ViewData["CurrentFilter"] = searchString;
+
+            var materials = from m in _context.Material select m;
+
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                materials = materials.Where(c => c.Title.Contains(searchString));
+            }
+
+            if (sortOrder == "name_desc")
+            {
+                materials = materials.OrderByDescending(m => m.Title);
+            }
+            else
+            {
+                materials = materials.OrderBy(m => m.Title);
+            }
+
+            int pageSize = 3;
+            return View(await PaginatedList<Material>.CreateAsync(materials.AsNoTracking(), pageNumber ?? 1, pageSize));
+
             var applicationDbContext = _context.Material.Include(m => m.Course);
             return View(await applicationDbContext.ToListAsync());
         }

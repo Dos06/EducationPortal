@@ -20,9 +20,39 @@ namespace EduPortal.Controllers
         }
 
         // GET: Categories
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string sortOrder, string currentFilter, string searchString, int? pageNumber)
         {
-            return View(await _context.Category.ToListAsync());
+            ViewData["CurrentSort"] = sortOrder;
+            ViewData["NameSortParm"] = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
+            ViewData["CurrentFilter"] = searchString;
+
+            if (searchString != null)
+            {
+                pageNumber = 1;
+            } else
+            {
+                searchString = currentFilter;
+            }
+
+            ViewData["CurrentFilter"] = searchString;
+
+            var categories = from c in _context.Category select c;
+
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                categories = categories.Where(c => c.Name.Contains(searchString));
+            }
+
+            if (sortOrder == "name_desc")
+            {
+                categories = categories.OrderByDescending(c => c.Name);
+            } else
+            {
+                categories = categories.OrderBy(c => c.Name);
+            }
+
+            int pageSize = 3;
+            return View(await PaginatedList<Category>.CreateAsync(categories.AsNoTracking(), pageNumber ?? 1, pageSize));
         }
 
         // GET: Categories/Details/5
