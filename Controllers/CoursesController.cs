@@ -37,7 +37,7 @@ namespace EduPortal.Controllers
 
             ViewData["CurrentFilter"] = searchString;
 
-            var courses = from c in _context.Course select c;
+            var courses = from c in _context.Course.Include(c => c.Category) select c;
 
             if (!String.IsNullOrEmpty(searchString))
             {
@@ -58,6 +58,12 @@ namespace EduPortal.Controllers
 
             //var applicationDbContext = _context.Course.Include(c => c.Category);
             //return View(await applicationDbContext.ToListAsync());
+        }
+
+        public async Task<IActionResult> Courses()
+        {
+            var applicationDbContext = _context.Course.Include(c => c.Category);
+            return View(await applicationDbContext.ToListAsync());
         }
 
         // GET: Courses/Details/5

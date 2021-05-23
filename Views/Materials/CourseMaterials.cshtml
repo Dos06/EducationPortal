@@ -1,0 +1,19 @@
+﻿@model IEnumerable<EduPortal.Models.Material>
+
+@{
+    ViewData["Title"] = "Course Materials";
+}
+
+<h1>@ViewData["CourseName"]</h1>
+
+@foreach (var item in Model)
+{
+    <div class="card my-5">
+        <h3 class="card-header" style="background-color: lightblue;">@item.Date.ToString("MMMM") @item.Date.Day, @item.Date.Year</h3>
+        <div class="card-body" style="background-color: azure;">
+            <h1 class="card-title">@item.Title</h1>
+            <p class="card-text">To Explore some useful information Click the button below!</p>
+            <a href="/Materials/Details/@item.Id" class="btn btn-info btn-lg">Details</a>
+        </div>
+    </div>
+}

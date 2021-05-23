@@ -19,6 +19,36 @@ namespace EduPortal.Controllers
             _context = context;
         }
 
+        public async Task<IActionResult> CourseMaterials(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+            List<Material> materials = new List<Material>();
+
+            ViewData["CourseName"] = "Course";
+            var course = await _context.Course
+                .Include(c => c.Category)
+                .Include(c => c.Materials)
+                .FirstOrDefaultAsync(m => m.Id == id);
+
+            if (course == null)
+            {
+                return NotFound();
+            }
+            else
+            {
+                ViewData["CourseName"] = course.Name;
+                if (course.Materials != null)
+                {
+                    materials = course.Materials.ToList();
+                }
+            }
+
+            return View(materials);
+        }
+
         // GET: Materials
         public async Task<IActionResult> Index(string sortOrder, string currentFilter, string searchString, int? pageNumber)
         {
@@ -37,7 +67,7 @@ namespace EduPortal.Controllers
 
             ViewData["CurrentFilter"] = searchString;
 
-            var materials = from m in _context.Material select m;
+            var materials = from m in _context.Material.Include(m => m.Course) select m;
 
             if (!String.IsNullOrEmpty(searchString))
             {
@@ -56,8 +86,8 @@ namespace EduPortal.Controllers
             int pageSize = 3;
             return View(await PaginatedList<Material>.CreateAsync(materials.AsNoTracking(), pageNumber ?? 1, pageSize));
 
-            var applicationDbContext = _context.Material.Include(m => m.Course);
-            return View(await applicationDbContext.ToListAsync());
+            //var applicationDbContext = _context.Material.Include(m => m.Course);
+            //return View(await applicationDbContext.ToListAsync());
         }
 
         // GET: Materials/Details/5
